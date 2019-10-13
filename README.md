@@ -4,12 +4,13 @@ Reads POIs and creates Locus POI databases
 This is a python based command line application that converts POIs (points-of-interest) into the database
 format suitable for Locus vector maps.
 
-## Installation:
-* install python 3.7 and pipenv
-* clone this repository
+## Installation (Ubuntu Linux):
+* Install required packages: python3.7 git libsqlite3-mod-spatialite
+* Install pipenv `pip3 install pipenv`
+* clone this git repository `git clone https://github.com/lieblerj/poi_converter.git`
 * run `pipenv update` to download and install the necessary dependencies (pyosmium, pyspatialite and tdqm)
 * run `pipenv shell` to activate the virtual environment
-* start the tool
+* running `python poiconverter.py -h` will show the following output
 
 ```
 usage: poiconverter.py [-h] [-version] -if {pbf,poi} -om {create,append}
@@ -27,8 +28,22 @@ optional arguments:
   -if {pbf,poi}        specify input file format
   -om {create,append}  specify output mode: create will newly create database
                        and append will only append new POIs.
-
 ```
+
+## Configuration
+All configuration files are located in the config subfolder:
+### init.sql
+Contains SQLite commands that setup the database and create the required tables
+
+### tagfilter.txt
+Contains `<tag>=<value>` pairs which are used for filtering. The script searches for the first matching
+tag,value pair and uses this to assign a type to each POI. The type is used as POI name if a POI does
+not have a name tag and will also be used for Root/Subfolder mapping. The first match will be used so
+tags at the top have higher priority.
+
+### translation.txt
+POIs without a name will get the type as name. The file is used to convert the name into
+something more readable.
 
 ## Open topics
 * only rudimentary error handling implemented
