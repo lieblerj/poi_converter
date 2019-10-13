@@ -62,13 +62,17 @@ class PoiWriter:
             elif poi.type[0] == 'shop':
                 poi.set_type(('subfolder', 'other'))
             else:
-                poi.set_type(('subfolder', 'golf')) # used to find out what is not sorted properly
+                #poi.set_type(('subfolder', 'golf')) # used to find out what is not sorted properly
+                pass
         return True
 
     def poi_map_similar_tags(self, poi):
         if 'website' in poi.tags:
             poi.add_tag('url', poi.tags.get('website'))
-        pass
+        if 'contact:website' in poi.tags:
+            poi.add_tag('url', poi.tags.get('contact:website'))
+        if 'contact:phone' in poi.tags:
+            poi.add_tag('phone', poi.tags.get('contact:phone'))
 
     def write_poi(self, poi):
         if poi:

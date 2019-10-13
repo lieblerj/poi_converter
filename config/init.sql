@@ -188,6 +188,14 @@ INSERT INTO TagKeys (name) VALUES ('denomination');
 INSERT INTO TagKeys (name) VALUES ('email');
 INSERT INTO TagKeys (name) VALUES ('phone');
 INSERT INTO TagKeys (name) VALUES ('url');
+INSERT INTO TagKeys (name) VALUES ('bus_lines');
+INSERT INTO TagKeys (name) VALUES ('bus_routes');
+INSERT INTO TagKeys (name) VALUES ('route_ref');
+INSERT INTO TagKeys (name) VALUES ('wheelchair');
+INSERT INTO TagKeys (name) VALUES ('shelter');
+INSERT INTO TagKeys (name) VALUES ('network');
+INSERT INTO TagKeys (name) VALUES ('access');
+INSERT INTO TagKeys (name) VALUES ('fee');
 
 
 -- Table not in official database, but used for folder mapping
