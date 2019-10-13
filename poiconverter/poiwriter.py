@@ -9,13 +9,15 @@ class PoiWriter:
         self.db = db
         self.available_tags = dict(db.read_tags())
         self.folders_sub = dict(db.read_folders_sub())
-        self.translations = []
+        translations = []
+
         with open(translation_file,'r') as f:
             line = f.readline()
             while line:
                 if not line.startswith('#') and len(line) > 2:
-                    self.translations.append(line.strip().split('='))
-                line = f.readline()            
+                    translations.append(line.strip().split('='))
+                line = f.readline()
+        self.translations = dict(translations)
 
 
     # TODO store conversion values in config file or database
@@ -81,5 +83,5 @@ class PoiWriter:
                 return
             self.poi_map_similar_tags(poi)
             poi.filter_tags(self.available_tags)
-            poi.translate_name(dict(self.translations))
+            poi.translate_name(self.translations)
             self.db.write_poi(poi)
