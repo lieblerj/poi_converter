@@ -11,7 +11,7 @@ class PoiWriter:
         self.folders_sub = dict(db.read_folders_sub())
         translations = []
 
-        with open(translation_file,'r') as f:
+        with open(translation_file,'r',encoding='utf-8') as f:
             line = f.readline()
             while line:
                 if not line.startswith('#') and len(line) > 2:
