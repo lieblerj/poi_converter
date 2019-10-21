@@ -16,7 +16,7 @@ from poiconverter.poiimporter import PoiImporter
 from poiconverter.poiwriter import PoiWriter
 from poiconverter.tagfilter import TagFilter
 
-version = '0.4.2' # update version
+version = '0.4.3' # update version
 
 def main():
     parser = argparse.ArgumentParser(description='Extracts POIs from osm file and create Locus poi database')
@@ -30,12 +30,13 @@ def main():
 
     arguments = parser.parse_args()
 
-    db = Database()
-    tag_filter = TagFilter('config/tagfilter.txt')
-
     if not os.path.isfile(arguments.input_file):
         print("input file '{}' does not exist!".format(arguments.input_file))
         sys.exit(1)
+
+    script_root_dir = os.path.dirname(os.path.realpath(__file__))
+
+    db = Database(os.path.join(script_root_dir,'config/init.sql'))
 
     start_time = time.time()
     print("Preparing database, please wait ... ", end='')
@@ -43,7 +44,9 @@ def main():
     db.open(arguments.output_file, arguments.output_mode)
     print("finished!")
 
-    writer = PoiWriter(db, 'config/translation.txt')
+    tag_filter = TagFilter(os.path.join(script_root_dir,'config/tagfilter.txt'))
+    writer = PoiWriter(db, os.path.join(script_root_dir,'config/translation.txt'))
+
     if arguments.input_format == 'poi':
         importer = PoiImporter(writer.write_poi, tag_filter)
     elif arguments.input_format == 'pbf':

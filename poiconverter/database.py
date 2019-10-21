@@ -5,8 +5,9 @@ import spatialite
 import os
 
 class Database:
-    def __init__(self):
+    def __init__(self, init_file):
         self.entries = 0
+        self.init_file = init_file
 
     def open_append(self, file):
         self.db = spatialite.connect(self.file_name)
@@ -35,7 +36,7 @@ class Database:
 
     def initialize_database(self):
         self.cursor = self.db.cursor()
-        with open('config/init.sql','r') as f:
+        with open(self.init_file,'r') as f:
             sql_commands = f.readlines()
             sql = 'SELECT InitSpatialMetadata(1)'
             result = self.db.execute(sql).fetchone()
