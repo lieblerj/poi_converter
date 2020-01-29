@@ -9,7 +9,7 @@ class Database:
         self.entries = 0
         self.init_file = init_file
 
-    def open_append(self, file):
+    def open_append(self):
         self.db = spatialite.connect(self.file_name)
         self.cursor = self.db.cursor()
 
