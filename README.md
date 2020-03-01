@@ -5,9 +5,10 @@ This is a python based command line application that converts POIs (points-of-in
 format suitable for Locus vector maps.
 
 ## Installation (Ubuntu Linux):
-* Install required packages: python3.7 git libsqlite3-mod-spatialite
+* Install required packages: python3 git libsqlite3-mod-spatialite python3-pipenv
 * Install pipenv `pip3 install pipenv`
 * clone this git repository `git clone https://github.com/lieblerj/poi_converter.git`
+* change into the repository `cd poi_converter`
 * run `pipenv update` to download and install the necessary dependencies (pyosmium, pyspatialite and tdqm)
 * run `pipenv shell` to activate the virtual environment
 * running `python poiconverter.py -h` will show the following output
