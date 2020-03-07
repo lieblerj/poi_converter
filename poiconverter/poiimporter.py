@@ -21,16 +21,7 @@ class PoiImporter():
         self.tag_filter = tag_filter
         self.node_id = 0
 
-    def handle_node(self, node):
-        node_type = self.tag_filter.tag_matched(node.tags)
-        if node_type:
-            name = node.tags.get('name', '')
-            poi = Poi(node.id, name, node.location.lat, node.location.lon)
-            for tag in node.tags:
-                poi.add_tag(*tag)
-            self.callback(poi)
-
-    def handle_result(self, result): #result is tuple of all database columns 
+    def handle_result(self, result): #result is tuple of all database columns
         self.node_id += 1
         lat = (result[0] + result[1]) / 2 # use arithmetic mean to calculate location
         lon = (result[2] + result[3]) / 2
