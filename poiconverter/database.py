@@ -56,7 +56,6 @@ class Database:
     def insert_pois(self, pois_with_ids):
         def iterator(pois_with_ids):
             for (id, poi) in pois_with_ids:
-                sql = "INSERT INTO 'Points'(ROWID, id, type, name, geom) VALUES(?,'P',?, GEOMFROMTEXT(?, 4326));"
                 yield [id, poi.node_id, poi.name, "POINT({} {})".format(poi.lon, poi.lat)]
 
         sql = "INSERT INTO 'Points'(ROWID, id, type, name, geom) VALUES(?, ?,'P',?, GEOMFROMTEXT(?, 4326));"
@@ -75,7 +74,7 @@ class Database:
         """
         self.cursor.executemany(sql, iterator(pois_with_ids))
 
-    def insert_tagss(self, pois_with_ids):
+    def insert_tags(self, pois_with_ids):
         def value_iterator(pois_with_ids):
             for (_, poi) in pois_with_ids:
                 for (k, v) in poi.tags.items():
@@ -106,7 +105,7 @@ class Database:
 
         self.insert_pois(pois_with_ids)
         self.insert_root_sub_folders(pois_with_ids)
-        self.insert_tagss(pois_with_ids)
+        self.insert_tags(pois_with_ids)
         self.batched_pois.clear()
 
 
