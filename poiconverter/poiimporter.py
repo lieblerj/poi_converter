@@ -14,16 +14,15 @@ import sqlite3
 from poiconverter.poi import Poi
 from tqdm import tqdm
 
+
 class PoiImporter():
 
     def __init__(self, callback, tag_filter):
         self.callback = callback
         self.tag_filter = tag_filter
-        self.node_id = 0
 
-    def handle_result(self, result): #result is tuple of all database columns
-        self.node_id += 1
-        lat = (result[0] + result[1]) / 2 # use arithmetic mean to calculate location
+    def handle_result(self, result):  # result is tuple of all database columns
+        lat = (result[0] + result[1]) / 2  # use arithmetic mean to calculate location
         lon = (result[2] + result[3]) / 2
         tags = dict()
         for line in result[4].replace("\r\n", " ").split('\r'):
@@ -35,7 +34,8 @@ class PoiImporter():
         node_type = self.tag_filter.tag_matched(tags)
         if node_type:
             name = tags.get('name', '')
-            poi = Poi(self.node_id, name, lat, lon)
+            # mapsforge Poi files do not contain the OSM node id, so always use 0.
+            poi = Poi(0, name, lat, lon)
             poi.set_type(node_type)
             poi.add_tags(tags)
             self.callback(poi)
