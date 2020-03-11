@@ -14,6 +14,11 @@ class Database:
     def open_append(self):
         self.db = spatialite.connect(self.file_name)
         self.cursor = self.db.cursor()
+        last_ROWID = self.cursor.execute("SELECT max(ROWID) from Points").fetchone()[0]
+        if last_ROWID is None:
+            self.first_free_points_id = 0
+        else:
+            self.first_free_points_id = last_ROWID + 1
 
     def open_create(self):
         if os.path.isfile(self.file_name):
