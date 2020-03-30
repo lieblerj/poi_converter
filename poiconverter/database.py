@@ -8,10 +8,17 @@ class Database:
     def __init__(self, init_file):
         self.entries = 0
         self.init_file = init_file
+        self.batch_size = 10000
+        self.batched_pois = []
 
     def open_append(self):
         self.db = spatialite.connect(self.file_name)
         self.cursor = self.db.cursor()
+        last_ROWID = self.cursor.execute("SELECT max(ROWID) from Points").fetchone()[0]
+        if last_ROWID is None:
+            self.first_free_points_id = 0
+        else:
+            self.first_free_points_id = last_ROWID + 1
 
     def open_create(self):
         if os.path.isfile(self.file_name):
@@ -19,6 +26,7 @@ class Database:
         self.db = spatialite.connect(self.file_name)
         self.cursor = self.db.cursor()
         self.initialize_database()
+        self.first_free_points_id = 0
 
     def open(self, file, mode):
         self.file_name = file
@@ -31,6 +39,7 @@ class Database:
             raise ValueError('Wrong mode parameter')
 
     def close(self):
+        self.write_pois()
         self.db.commit()
         self.db.close()
 
@@ -44,33 +53,61 @@ class Database:
                 if command.strip(): #skip empty lines
                     result = self.db.execute(command)
 
-    def insert_poi(self, poi):
-        sql = "INSERT INTO 'Points' VALUES(?,'P',?, GEOMFROMTEXT('POINT({} {})', 4326));".format(poi.lon, poi.lat)
-        params = [poi.node_id, poi.name]
-        result = self.cursor.execute(sql, params)
-        self.row_id = self.cursor.lastrowid # rowid id is used for all other tables in database
+    def insert_pois(self, pois_with_ids):
+        def iterator(pois_with_ids):
+            for (id, poi) in pois_with_ids:
+                yield [id, poi.node_id, poi.name, "POINT({} {})".format(poi.lon, poi.lat)]
 
-    def insert_root_sub_folder(self, poi_type):
-        sql = ("SELECT FoldersRoot.id, FoldersSub.id  FROM FoldersSub,FoldersRoot WHERE FoldersSub.name = ?" 
-            "AND FoldersRoot.name = (SELECT RootSubMapping.rootname FROM RootSubMapping"
-            " WHERE RootSubMapping.subname = ?);")
-        root_sub = self.db.execute(sql, (poi_type[1],poi_type[1])).fetchone()
+        sql = "INSERT INTO 'Points'(ROWID, id, type, name, geom) VALUES(?, ?,'P',?, GEOMFROMTEXT(?, 4326));"
+        self.cursor.executemany(sql, iterator(pois_with_ids))
 
-        sql = "INSERT INTO Points_Root_Sub VALUES({},{},{});".format(self.row_id,root_sub[0],root_sub[1])
-        result = self.db.execute(sql)
+    def insert_root_sub_folders(self, pois_with_ids):
+        def iterator(pois_with_ids):
+            for (id, poi) in pois_with_ids:
+                yield [id, poi.type[1], poi.type[1]]
 
-    def insert_tags(self, tags):
-        for key in tags:
-            value = tags[key]
-            result = self.cursor.execute("INSERT OR IGNORE INTO TagValues (name) VALUES(?);", (value,))
-            sql = "INSERT INTO Points_Key_Value (Points_id, TagKeys_id, TagValues_id) VALUES(?, (SELECT id FROM TagKeys WHERE TagKeys.name = ?), (SELECT id FROM TagValues WHERE TagValues.name = ?));"
-            result = self.cursor.execute(sql, (self.row_id, key, value))
+        sql = """INSERT INTO Points_root_sub VALUES(
+            ?,
+            (SELECT fr.id FROM FoldersRoot fr JOIN RootSubMapping rsm ON fr.name = rsm.rootname WHERE rsm.subname = ?),
+            (SELECT fs.id FROM FoldersSub fs WHERE fs.name = ?)
+        )
+        """
+        self.cursor.executemany(sql, iterator(pois_with_ids))
+
+    def insert_tags(self, pois_with_ids):
+        def value_iterator(pois_with_ids):
+            for (_, poi) in pois_with_ids:
+                for (k, v) in poi.tags.items():
+                    yield [v]
+
+        def pkv_iterator(pois_with_ids):
+            for (id, poi) in pois_with_ids:
+                for (k,v) in poi.tags.items():
+                    yield [id, k, v]
+
+        sql = "INSERT OR IGNORE INTO TagValues (name) VALUES(?);"
+        self.cursor.executemany(sql, value_iterator(pois_with_ids))
+
+        sql = "INSERT INTO Points_Key_Value (Points_id, TagKeys_id, TagValues_id) VALUES(?, (SELECT id FROM TagKeys WHERE TagKeys.name = ?), (SELECT id FROM TagValues WHERE TagValues.name = ?));"
+        self.cursor.executemany(sql, pkv_iterator(pois_with_ids))
 
     def write_poi(self, poi):
-        self.insert_poi(poi)
-        self.insert_root_sub_folder(poi.type)
-        self.insert_tags(poi.tags)
+        self.batched_pois.append(poi)
         self.entries += 1
+        if len(self.batched_pois) >= self.batch_size:
+            self.write_pois()
+
+    def write_pois(self):
+        pois_with_ids = []
+        for poi in self.batched_pois:
+            pois_with_ids.append((self.first_free_points_id, poi))
+            self.first_free_points_id += 1
+
+        self.insert_pois(pois_with_ids)
+        self.insert_root_sub_folders(pois_with_ids)
+        self.insert_tags(pois_with_ids)
+        self.batched_pois.clear()
+
 
     def read_tags(self):
         sql = "SELECT name, id from TagKeys;"
