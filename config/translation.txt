@@ -74,5 +74,7 @@ ferry_terminal=Fährhafen
 attraction=Sehenswürdigkeit
 convenience=Supermarkt
 department_store=Kaufhaus
+camp_site=Zeltplatz
+caravan_site=Campingplatz
 
 #bycicle

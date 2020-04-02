@@ -5,7 +5,7 @@
 Subfolder name               | Node tagged in OSM
 ---------------------------- | ---------------------------
 alpine_hut                   | tourism=alpine_hut
-camp_caravan                 | tourism=camp_site
+camp_caravan                 | tourism=camp_site, tourism=caravan_site
 motel                        | tourism=motel
 hostel                       | tourism=hostel
 hotel                        | tourism=hotel

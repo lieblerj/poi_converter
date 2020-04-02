@@ -16,7 +16,7 @@ from poiconverter.poiimporter import PoiImporter
 from poiconverter.poiwriter import PoiWriter
 from poiconverter.tagfilter import TagFilter
 
-version = '0.5.0' # update version
+version = '0.5.1' # update version
 
 def main():
     parser = argparse.ArgumentParser(description='Extracts POIs from osm file and create Locus poi database')

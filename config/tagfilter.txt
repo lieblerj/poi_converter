@@ -75,3 +75,5 @@ leisure=stadium
 amenity=veterinary
 aeroway=aerodrome
 amenity=ferry_terminal
+tourism=caravan_site
+tourism=camp_site

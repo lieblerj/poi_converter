@@ -59,6 +59,8 @@ class PoiWriter:
                 poi.set_type(('subfolder', 'ferries'))
             elif poi.type[1] == 'information':
                 poi.set_type(('subfolder', 'info'))
+            elif poi.type[1] in ('camp_site', 'caravan_site'):
+                poi.set_type(('subfolder', 'camp_caravan'))
             elif poi.type[0] == 'historic':
                 poi.set_type(('subfolder', 'castle_ruin_monument'))
             elif poi.type[0] == 'shop':
