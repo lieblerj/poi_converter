@@ -13,6 +13,7 @@ File format:
 import sqlite3
 from poiconverter.poi import Poi
 from tqdm import tqdm
+import re
 
 
 class PoiImporter():
@@ -20,6 +21,19 @@ class PoiImporter():
     def __init__(self, callback, tag_filter):
         self.callback = callback
         self.tag_filter = tag_filter
+
+    def osm_get_info(self, osm_data):
+        result = re.search( r'openstreetmap\.org\/(node|way)\/(\d+)', osm_data)
+        if result:
+            osm_id = result.group(2)
+            if 'way' == result.group(1):
+                osm_type = 'W'
+            else:
+                osm_type = 'P'
+        else:
+            osm_id = 0
+            osm_type = 'P'
+        return osm_id, osm_type
 
     def handle_result(self, result):  # result is tuple of all database columns
         lat = (result[0] + result[1]) / 2  # use arithmetic mean to calculate location
@@ -33,10 +47,11 @@ class PoiImporter():
                 print("Improper tag: {}".format(matches))
         node_type = self.tag_filter.tag_matched(tags)
         if node_type:
-            name = tags.get('name', '')
-            # mapsforge Poi files do not contain the OSM node id, so always use 0.
-            poi = Poi(0, name, lat, lon)
+            name = tags.get('name', None)
+            osm_id, osm_type = self.osm_get_info(tags.get('osm_id_link', ''))
+            poi = Poi(osm_id, name, lat, lon)
             poi.set_type(node_type)
+            poi.set_osm_type(osm_type)
             poi.add_tags(tags)
             self.callback(poi)
 

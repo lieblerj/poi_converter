@@ -14,8 +14,9 @@ class Poi:
 
     def set_type(self,type):
         self.type = type
-        if len(self.name) < 1:
-            self.name = self.type[1]
+
+    def set_osm_type(self,osm_type):
+        self.osm_type = osm_type
 
     def add_tag(self, k, v):
         self.tags[k] = v
@@ -31,9 +32,9 @@ class Poi:
         self.tags = new_tags
 
     def translate_name(self, translations):
-        if self.name in translations.keys():
-                self.name = translations[self.name]
+        if self.type in translations.keys():
+                self.name = translations[self.type]
 
     def __repr__(self):
-        return "ID: {}, Name: {}, Lat: {}, Lon: {}, Tags:{}".format(self.node_id, self.name, self.lat, self.lon, self.tags)
+        return "ID: {}, Name: {}, OSM Type: {}, Lat: {}, Lon: {}, Tags:{}".format(self.node_id, self.name, self.osm_type, self.lat, self.lon, self.tags)
 

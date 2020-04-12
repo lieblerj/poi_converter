@@ -56,9 +56,9 @@ class Database:
     def insert_pois(self, pois_with_ids):
         def iterator(pois_with_ids):
             for (id, poi) in pois_with_ids:
-                yield [id, poi.node_id, poi.name, "POINT({} {})".format(poi.lon, poi.lat)]
+                yield [id, poi.node_id, poi.osm_type, poi.name, "POINT({} {})".format(poi.lon, poi.lat)]
 
-        sql = "INSERT INTO 'Points'(ROWID, id, type, name, geom) VALUES(?, ?,'P',?, GEOMFROMTEXT(?, 4326));"
+        sql = "INSERT INTO 'Points'(ROWID, id, type, name, geom) VALUES(?,?,?,?, GEOMFROMTEXT(?,4326));"
         self.cursor.executemany(sql, iterator(pois_with_ids))
 
     def insert_root_sub_folders(self, pois_with_ids):
