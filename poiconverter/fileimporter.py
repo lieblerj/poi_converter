@@ -18,6 +18,7 @@ class FileImporter(osmium.SimpleHandler):
             poi = Poi(node.id, name, node.location.lat, node.location.lon)
             poi.set_type(node_type)
             poi.add_tags(node_tags)
+            poi.set_osm_type('P')
             self.callback(poi)
 
     def node(self, node):
